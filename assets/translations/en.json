@@ -42,5 +42,18 @@
   "email": "Email",
   "notes": "Additional Notes",
   "required_documents": "Required Documents",
-  "cached": "Cached"
+  "cached": "Cached",
+  "login": "Login",
+  "register": "Register",
+  "password": "Password",
+  "login_subtitle": "Access Fujairah Municipality Services",
+  "dont_have_account": "Don't have an account?",
+  "already_have_account": "Already have an account?",
+  "login_success": "Login successful",
+  "register_success": "Registration successful",
+  "logout": "Logout",
+  "demo_credentials": "Demo: 784-1990-1234567-1 / any password",
+  "welcome_back": "Welcome back",
+  "name_arabic": "Name (Arabic)",
+  "name_english": "Name (English)"
 }

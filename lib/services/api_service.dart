@@ -4,9 +4,13 @@ import '../core/constants/api_constants.dart';
 import '../models/category.dart';
 import '../models/service.dart';
 import '../models/announcement.dart';
+import '../models/user.dart';
 
 class ApiService {
   late final Dio _dio;
+  String? _authToken;
+
+  String? get authToken => _authToken;
 
   ApiService() {
     _dio = Dio(BaseOptions(
@@ -87,5 +91,56 @@ class ApiService {
     });
     final response = await _dio.post(ApiConstants.upload, data: formData);
     return response.data as Map<String, dynamic>;
+  }
+
+  // ── Auth methods ──────────────────────────────────────────────────────
+
+  void setAuthToken(String? token) {
+    _authToken = token;
+    if (token != null) {
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      _dio.options.headers.remove('Authorization');
+    }
+  }
+
+  Future<Map<String, dynamic>> login({
+    required String emiratesId,
+    required String password,
+  }) async {
+    final response = await _dio.post(
+      '/api/auth/login',
+      data: {'emirates_id': emiratesId, 'password': password},
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> register({
+    required String nameEn,
+    required String nameAr,
+    required String emiratesId,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    final response = await _dio.post(
+      '/api/auth/register',
+      data: {
+        'name_en': nameEn,
+        'name_ar': nameAr,
+        'emirates_id': emiratesId,
+        'email': email,
+        'phone': phone,
+        'password': password,
+      },
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<AppUser> getMe() async {
+    final response = await _dio.get('/api/auth/me');
+    return AppUser.fromJson(
+      (response.data as Map<String, dynamic>)['user'] as Map<String, dynamic>,
+    );
   }
 }

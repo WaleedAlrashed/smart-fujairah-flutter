@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/cache_service.dart';
 
@@ -10,13 +11,58 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    final authState = ref.watch(authProvider);
     final theme = Theme.of(context);
+    final locale = context.locale.languageCode;
 
     return Scaffold(
       appBar: AppBar(title: Text('settings'.tr())),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // User info
+          if (authState.user != null)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.person,
+                        size: 28,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            authState.user!.name(locale),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            authState.user!.emiratesId,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (authState.user != null) const SizedBox(height: 12),
+
           // Theme
           Card(
             child: Padding(
@@ -100,6 +146,21 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Logout
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.logout, color: theme.colorScheme.error),
+              title: Text(
+                'logout'.tr(),
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+              onTap: () {
+                ref.read(authProvider.notifier).logout();
+              },
             ),
           ),
         ],

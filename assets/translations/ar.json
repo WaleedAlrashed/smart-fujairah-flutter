@@ -42,5 +42,18 @@
   "email": "البريد الإلكتروني",
   "notes": "ملاحظات إضافية",
   "required_documents": "المستندات المطلوبة",
-  "cached": "مخزن مؤقتاً"
+  "cached": "مخزن مؤقتاً",
+  "login": "تسجيل الدخول",
+  "register": "إنشاء حساب",
+  "password": "كلمة المرور",
+  "login_subtitle": "الوصول إلى خدمات بلدية الفجيرة",
+  "dont_have_account": "ليس لديك حساب؟",
+  "already_have_account": "لديك حساب بالفعل؟",
+  "login_success": "تم تسجيل الدخول بنجاح",
+  "register_success": "تم التسجيل بنجاح",
+  "logout": "تسجيل الخروج",
+  "demo_credentials": "تجريبي: 784-1990-1234567-1 / أي كلمة مرور",
+  "welcome_back": "مرحباً بعودتك",
+  "name_arabic": "الاسم (عربي)",
+  "name_english": "الاسم (إنجليزي)"
 }
