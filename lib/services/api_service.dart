@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/api_constants.dart';
+import '../exceptions/api_exception.dart';
 import '../models/category.dart';
 import '../models/service.dart';
 import '../models/announcement.dart';
@@ -25,6 +26,50 @@ class ApiService {
       responseBody: true,
       logPrint: (o) => debugPrint(o.toString()),
     ));
+
+    // Error interceptor — maps Dio errors to typed ApiExceptions
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (DioException error, ErrorInterceptorHandler handler) {
+          final ApiException apiException;
+
+          switch (error.type) {
+            case DioExceptionType.connectionTimeout:
+            case DioExceptionType.sendTimeout:
+            case DioExceptionType.receiveTimeout:
+              apiException = const TimeoutException();
+            case DioExceptionType.connectionError:
+              apiException = const NetworkException();
+            case DioExceptionType.badResponse:
+              final statusCode = error.response?.statusCode;
+              apiException = switch (statusCode) {
+                401 => const UnauthorizedException(),
+                404 => const NotFoundException(),
+                422 => ValidationException(
+                    errors: error.response?.data is Map
+                        ? error.response?.data as Map<String, dynamic>
+                        : null),
+                _ => ServerException(
+                    detail: error.response?.data is Map
+                        ? (error.response?.data
+                            as Map<String, dynamic>)['message'] as String?
+                        : null),
+              };
+            default:
+              apiException = const ServerException();
+          }
+
+          handler.reject(
+            DioException(
+              requestOptions: error.requestOptions,
+              error: apiException,
+              type: error.type,
+              response: error.response,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Future<List<ServiceCategory>> getCategories() async {
