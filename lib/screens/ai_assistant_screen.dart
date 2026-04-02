@@ -1,10 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/typing_indicator.dart';
-
-const _geminiApiKey = 'AIzaSyCYi9g0YmOPxzhjkTHdfXS6ZvOAnEpLpqU';
 
 class ChatMessage {
   final String text;
@@ -32,10 +30,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   @override
   void initState() {
     super.initState();
-    _model = GenerativeModel(
+    _model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-2.5-flash',
-      apiKey: _geminiApiKey,
-      systemInstruction: Content.text(
+      systemInstruction: Content.system(
         'You are the Smart Fujairah AI Assistant — a helpful, professional chatbot '
         'for Fujairah Municipality government services in the UAE. '
         'You help citizens with questions about municipality services such as: '
