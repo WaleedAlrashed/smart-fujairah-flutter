@@ -55,5 +55,14 @@
   "demo_credentials": "تجريبي: 784-1990-1234567-1 / أي كلمة مرور",
   "welcome_back": "مرحباً بعودتك",
   "name_arabic": "الاسم (عربي)",
-  "name_english": "الاسم (إنجليزي)"
+  "name_english": "الاسم (إنجليزي)",
+  "ai_assistant": "المساعد",
+  "ai_welcome": "مساعد فجيرة الذكية",
+  "ai_welcome_subtitle": "اسألني عن أي خدمة بلدية",
+  "ai_input_hint": "اسأل عن الخدمات...",
+  "ai_clear_chat": "مسح المحادثة",
+  "ai_no_response": "عذراً، لم أتمكن من إنشاء رد.",
+  "ai_suggest_permit": "كيف أحصل على رخصة بناء؟",
+  "ai_suggest_land": "متطلبات تسجيل الأراضي",
+  "ai_suggest_complaint": "تقديم شكوى مستهلك"
 }

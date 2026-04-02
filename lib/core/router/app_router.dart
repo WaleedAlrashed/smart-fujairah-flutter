@@ -9,6 +9,7 @@ import '../../screens/service_detail_screen.dart';
 import '../../screens/service_request_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../../screens/search_screen.dart';
+import '../../screens/ai_assistant_screen.dart';
 import '../../screens/shell_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -68,6 +69,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/search',
                 builder: (context, state) => const SearchScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/assistant',
+                builder: (context, state) => const AiAssistantScreen(),
               ),
             ],
           ),

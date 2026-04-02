@@ -55,5 +55,14 @@
   "demo_credentials": "Demo: 784-1990-1234567-1 / any password",
   "welcome_back": "Welcome back",
   "name_arabic": "Name (Arabic)",
-  "name_english": "Name (English)"
+  "name_english": "Name (English)",
+  "ai_assistant": "Assistant",
+  "ai_welcome": "Smart Fujairah AI Assistant",
+  "ai_welcome_subtitle": "Ask me anything about municipality services",
+  "ai_input_hint": "Ask about services...",
+  "ai_clear_chat": "Clear chat",
+  "ai_no_response": "Sorry, I could not generate a response.",
+  "ai_suggest_permit": "How do I get a building permit?",
+  "ai_suggest_land": "Land registration requirements",
+  "ai_suggest_complaint": "File a consumer complaint"
 }
