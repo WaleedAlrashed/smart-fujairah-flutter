@@ -1,11 +1,11 @@
 {
-    "name": "smart_fujairah_complete",
-    "short_name": "smart_fujairah_complete",
+    "name": "Smart Fujairah — Fujairah Digital Government",
+    "short_name": "Smart Fujairah",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Access Fujairah Municipality government services — building permits, land registration, health inspections, and more.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
