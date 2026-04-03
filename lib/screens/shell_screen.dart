@@ -31,6 +31,11 @@ class ShellScreen extends StatelessWidget {
             label: 'search'.tr(),
           ),
           NavigationDestination(
+            icon: const Icon(Icons.assignment_outlined),
+            selectedIcon: const Icon(Icons.assignment),
+            label: 'my_requests'.tr(),
+          ),
+          NavigationDestination(
             icon: const Icon(Icons.smart_toy_outlined),
             selectedIcon: const Icon(Icons.smart_toy),
             label: 'ai_assistant'.tr(),

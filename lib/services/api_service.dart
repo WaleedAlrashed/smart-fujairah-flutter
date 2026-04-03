@@ -5,6 +5,8 @@ import '../exceptions/api_exception.dart';
 import '../models/category.dart';
 import '../models/service.dart';
 import '../models/announcement.dart';
+import '../models/service_request.dart';
+import '../models/plot.dart';
 import '../models/user.dart';
 
 class ApiService {
@@ -98,6 +100,13 @@ class ApiService {
         .toList();
   }
 
+  Future<List<Plot>> getPlots() async {
+    final response = await _dio.get(ApiConstants.plots);
+    return (response.data as List)
+        .map((e) => Plot.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<List<Announcement>> getAnnouncements() async {
     final response = await _dio.get(ApiConstants.announcements);
     return (response.data as List)
@@ -136,6 +145,13 @@ class ApiService {
     });
     final response = await _dio.post(ApiConstants.upload, data: formData);
     return response.data as Map<String, dynamic>;
+  }
+
+  Future<List<ServiceRequest>> getMyRequests() async {
+    final response = await _dio.get(ApiConstants.myRequests);
+    return (response.data as List)
+        .map((e) => ServiceRequest.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   // ── Auth methods ──────────────────────────────────────────────────────

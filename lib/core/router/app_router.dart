@@ -10,6 +10,8 @@ import '../../screens/service_request_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../../screens/search_screen.dart';
 import '../../screens/ai_assistant_screen.dart';
+import '../../screens/my_requests_screen.dart';
+import '../../screens/map_screen.dart';
 import '../../screens/shell_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -75,6 +77,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/requests',
+                builder: (context, state) => const MyRequestsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/assistant',
                 builder: (context, state) => const AiAssistantScreen(),
               ),
@@ -96,6 +106,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ServiceRequestScreen(
           serviceId: int.parse(state.pathParameters['serviceId']!),
         ),
+      ),
+      GoRoute(
+        path: '/map',
+        builder: (context, state) => const MapScreen(),
       ),
     ],
   );

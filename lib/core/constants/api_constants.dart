@@ -11,4 +11,6 @@ class ApiConstants {
   static String categoryServices(int categoryId) => '/api/categories/$categoryId/services';
   static String serviceDetail(int serviceId) => '/api/services/$serviceId';
   static String searchServices(String query) => '/api/services/search?q=$query';
+  static const myRequests = '/api/requests/my';
+  static const plots = '/api/plots';
 }
