@@ -92,5 +92,7 @@
   "plot_id_label": "رقم القطعة",
   "plot_code_label": "الرمز",
   "area_sqm": "المساحة",
-  "block": "البلوك"
+  "block": "البلوك",
+  "gemini_chat": "محادثة Gemini",
+  "gemini_chat_subtitle": "تحدث مع ذكاء Google Gemini"
 }

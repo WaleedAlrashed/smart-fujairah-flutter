@@ -4,17 +4,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/service_request.dart';
 import '../providers/requests_provider.dart';
 
+/// Screen that displays the user's service requests with filtering capabilities.
+///
+/// Features:
+/// - Tab-based filtering by status (All, Pending, Approved, Rejected)
+/// - Pull-to-refresh functionality
+/// - Detailed request view via modal bottom sheet
+/// - Visual progress tracking for each request
 class MyRequestsScreen extends ConsumerWidget {
   const MyRequestsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the requests provider to get async state of user's requests
     final requestsAsync = ref.watch(myRequestsProvider);
     final theme = Theme.of(context);
     final locale = context.locale.languageCode;
 
+    // Use DefaultTabController to manage tab state for filtering requests
     return DefaultTabController(
-      length: 4,
+      length: 4, // All, Pending, Approved, Rejected
       child: Scaffold(
         appBar: AppBar(
           title: Text('my_requests'.tr()),
@@ -29,6 +38,7 @@ class MyRequestsScreen extends ConsumerWidget {
             ],
           ),
         ),
+        // Handle loading, error, and data states from the async provider
         body: requestsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(
@@ -38,7 +48,8 @@ class MyRequestsScreen extends ConsumerWidget {
                 Text('error_occurred'.tr()),
                 const SizedBox(height: 8),
                 FilledButton.tonal(
-                  onPressed: () => ref.read(myRequestsProvider.notifier).refresh(),
+                  onPressed: () =>
+                      ref.read(myRequestsProvider.notifier).refresh(),
                   child: Text('retry'.tr()),
                 ),
               ],
@@ -46,35 +57,45 @@ class MyRequestsScreen extends ConsumerWidget {
           ),
           data: (requests) => TabBarView(
             children: [
+              // Tab 1: All requests (unfiltered)
               _RequestList(
                 requests: requests,
                 locale: locale,
-                onRefresh: () => ref.read(myRequestsProvider.notifier).refresh(),
+                onRefresh: () =>
+                    ref.read(myRequestsProvider.notifier).refresh(),
               ),
+              // Tab 2: Pending requests only
               _RequestList(
                 requests: requests
-                    .where((r) =>
-                        r.status == 'pending' || r.status == 'under_review')
+                    .where(
+                      (r) =>
+                          r.status == 'pending' || r.status == 'under_review',
+                    )
                     .toList(),
                 locale: locale,
                 emptyLabel: 'no_pending_requests',
-                onRefresh: () => ref.read(myRequestsProvider.notifier).refresh(),
+                onRefresh: () =>
+                    ref.read(myRequestsProvider.notifier).refresh(),
               ),
+              // Tab 3: Approved requests only
               _RequestList(
                 requests: requests
                     .where((r) => r.status == 'approved')
                     .toList(),
                 locale: locale,
                 emptyLabel: 'no_approved_requests',
-                onRefresh: () => ref.read(myRequestsProvider.notifier).refresh(),
+                onRefresh: () =>
+                    ref.read(myRequestsProvider.notifier).refresh(),
               ),
+              // Tab 4: Rejected requests only
               _RequestList(
                 requests: requests
                     .where((r) => r.status == 'rejected')
                     .toList(),
                 locale: locale,
                 emptyLabel: 'no_rejected_requests',
-                onRefresh: () => ref.read(myRequestsProvider.notifier).refresh(),
+                onRefresh: () =>
+                    ref.read(myRequestsProvider.notifier).refresh(),
               ),
             ],
           ),
@@ -84,6 +105,11 @@ class MyRequestsScreen extends ConsumerWidget {
   }
 }
 
+/// Reusable widget for displaying a filtered list of service requests.
+///
+/// Shows an empty state with an icon and localized message when no requests
+/// match the current filter, otherwise displays a scrollable list with
+/// pull-to-refresh functionality.
 class _RequestList extends StatelessWidget {
   final List<ServiceRequest> requests;
   final String locale;
@@ -99,6 +125,7 @@ class _RequestList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Display empty state when no requests match the current filter
     if (requests.isEmpty) {
       return Center(
         child: Column(
@@ -108,16 +135,16 @@ class _RequestList extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               emptyLabel.tr(),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey),
             ),
           ],
         ),
       );
     }
 
+    // Wrap list with pull-to-refresh functionality
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView.builder(
@@ -130,6 +157,11 @@ class _RequestList extends StatelessWidget {
   }
 }
 
+/// Card widget displaying a single service request in a summarized format.
+///
+/// Shows the reference number, status chip, service name, category,
+/// submission date, and estimated completion date. Tapping the card
+/// opens a detailed modal with complete request information.
 class _RequestCard extends StatelessWidget {
   final ServiceRequest request;
   final String locale;
@@ -150,7 +182,7 @@ class _RequestCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header: ref number + status chip
+              // Header row: reference number and status chip
               Row(
                 children: [
                   Expanded(
@@ -167,14 +199,14 @@ class _RequestCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              // Service name
+              // Service name (localized)
               Text(
                 request.serviceName(locale),
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: 4),
 
-              // Category
+              // Category name (localized)
               Text(
                 request.categoryName(locale),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -183,20 +215,23 @@ class _RequestCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Footer: date + estimated
+              // Footer row: submission date and optional estimated completion
               Row(
                 children: [
-                  Icon(Icons.calendar_today,
-                      size: 14, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 4),
-                  Text(
-                    request.submittedAt,
-                    style: theme.textTheme.bodySmall,
+                  Icon(
+                    Icons.calendar_today,
+                    size: 14,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
+                  const SizedBox(width: 4),
+                  Text(request.submittedAt, style: theme.textTheme.bodySmall),
                   if (request.estimatedCompletion != null) ...[
                     const Spacer(),
-                    Icon(Icons.schedule,
-                        size: 14, color: theme.colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.schedule,
+                      size: 14,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${'estimated'.tr()}: ${request.estimatedCompletion}',
@@ -212,6 +247,13 @@ class _RequestCard extends StatelessWidget {
     );
   }
 
+  /// Shows a draggable bottom sheet with detailed request information.
+  ///
+  /// The modal includes:
+  /// - Status chip (large version)
+  /// - Reference number, service, category, applicant details
+  /// - Review note (if present)
+  /// - Visual progress stepper showing request lifecycle
   void _showDetail(BuildContext context) {
     final theme = Theme.of(context);
     showModalBottomSheet(
@@ -226,7 +268,7 @@ class _RequestCard extends StatelessWidget {
           controller: scrollController,
           padding: const EdgeInsets.all(24),
           children: [
-            // Drag handle
+            // Drag handle indicator for the bottom sheet
             Center(
               child: Container(
                 width: 40,
@@ -239,11 +281,11 @@ class _RequestCard extends StatelessWidget {
               ),
             ),
 
-            // Status
+            // Status chip (large version for detail view)
             Center(child: _StatusChip(status: request.status, large: true)),
             const SizedBox(height: 20),
 
-            // Reference
+            // Request details section with icon-label-value pairs
             _DetailRow(
               icon: Icons.tag,
               label: 'reference_number'.tr(),
@@ -280,6 +322,7 @@ class _RequestCard extends StatelessWidget {
                 label: 'estimated'.tr(),
                 value: request.estimatedCompletion!,
               ),
+            // Review note section (only shown if a note exists)
             if (request.reviewNote != null) ...[
               const SizedBox(height: 16),
               Container(
@@ -291,8 +334,11 @@ class _RequestCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.note, size: 20,
-                        color: theme.colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.note,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -305,10 +351,9 @@ class _RequestCard extends StatelessWidget {
               ),
             ],
 
-            // Progress stepper
+            // Progress stepper showing request lifecycle stages
             const SizedBox(height: 24),
-            Text('request_progress'.tr(),
-                style: theme.textTheme.titleMedium),
+            Text('request_progress'.tr(), style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             _ProgressStepper(status: request.status),
           ],
@@ -318,6 +363,17 @@ class _RequestCard extends StatelessWidget {
   }
 }
 
+/// Status indicator chip that displays the request status with color coding.
+///
+/// Maps status values to semantic colors:
+/// - Pending: Orange
+/// - Under Review: Blue
+/// - Approved: Green
+/// - Rejected: Red
+/// - Unknown: Grey
+///
+/// The [large] parameter controls sizing for different contexts
+/// (card view vs. detail modal).
 class _StatusChip extends StatelessWidget {
   final String status;
   final bool large;
@@ -326,6 +382,7 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Pattern match status to determine color and localized label
     final (color, label) = switch (status) {
       'pending' => (Colors.orange, 'pending'.tr()),
       'under_review' => (Colors.blue, 'under_review'.tr()),
@@ -356,6 +413,10 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
+/// Reusable row widget displaying a labeled detail item with an icon.
+///
+/// Used in the request detail modal to show information like reference
+/// number, service name, applicant details, etc.
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -380,9 +441,14 @@ class _DetailRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                // Label (smaller, muted text)
+                Text(
+                  label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                // Value (normal text)
                 Text(value, style: theme.textTheme.bodyMedium),
               ],
             ),
@@ -393,6 +459,15 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
+/// Visual stepper widget showing the lifecycle stages of a service request.
+///
+/// Displays three stages:
+/// 1. Submitted - Always complete
+/// 2. Under Review - Active when status is 'under_review' or 'approved'
+/// 3. Completed - Shows check mark for approved, cancel icon for rejected
+///
+/// Completed stages are highlighted with the primary color, while pending
+/// stages are shown in grey. Vertical connectors link the stages together.
 class _ProgressStepper extends StatelessWidget {
   final String status;
 
@@ -400,13 +475,22 @@ class _ProgressStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Define the three steps with their labels, icons, and completion status
     final steps = [
-      ('submitted_step', Icons.send, true),
-      ('under_review_step', Icons.rate_review,
-          status == 'under_review' || status == 'approved'),
-      ('completed_step',
-          status == 'rejected' ? Icons.cancel : Icons.check_circle,
-          status == 'approved' || status == 'rejected'),
+      ('submitted_step', Icons.send, true), // Always complete
+      (
+        'under_review_step',
+        Icons.rate_review,
+        status == 'under_review' ||
+            status == 'approved', // Active for these statuses
+      ),
+      (
+        'completed_step',
+        status == 'rejected'
+            ? Icons.cancel
+            : Icons.check_circle, // Different icon for rejection
+        status == 'approved' || status == 'rejected', // Active when finalized
+      ),
     ];
 
     return Column(
@@ -414,6 +498,7 @@ class _ProgressStepper extends StatelessWidget {
         for (var i = 0; i < steps.length; i++) ...[
           Row(
             children: [
+              // Step indicator circle
               Container(
                 width: 32,
                 height: 32,
@@ -430,16 +515,17 @@ class _ProgressStepper extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
+              // Step label
               Text(
                 steps[i].$1.tr(),
                 style: TextStyle(
-                  fontWeight:
-                      steps[i].$3 ? FontWeight.w600 : FontWeight.normal,
+                  fontWeight: steps[i].$3 ? FontWeight.w600 : FontWeight.normal,
                   color: steps[i].$3 ? null : Colors.grey,
                 ),
               ),
             ],
           ),
+          // Vertical connector between steps (not after the last one)
           if (i < steps.length - 1)
             Container(
               width: 2,

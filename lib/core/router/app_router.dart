@@ -11,6 +11,7 @@ import '../../screens/settings_screen.dart';
 import '../../screens/search_screen.dart';
 import '../../screens/cloudflare_ai_screen.dart';
 import '../../screens/my_requests_screen.dart';
+import '../../screens/gemini_chat_screen.dart';
 import '../../screens/map_screen.dart';
 import '../../screens/shell_screen.dart';
 
@@ -110,6 +111,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/map',
         builder: (context, state) => const MapScreen(),
+      ),
+      GoRoute(
+        path: '/gemini-chat',
+        builder: (context, state) => const GeminiChatScreen(),
       ),
     ],
   );

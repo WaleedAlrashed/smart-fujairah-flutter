@@ -29,6 +29,7 @@ dependencies:
   latlong2: ^0.9.1
   cloudflare_ai: ^1.4.0
   flutter_dotenv: ^6.0.0
+  flutter_gemini: ^3.0.0
 
 dev_dependencies:
   flutter_test:

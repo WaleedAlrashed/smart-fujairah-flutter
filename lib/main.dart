@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'app.dart';
 import 'firebase_options.dart';
 
@@ -12,6 +13,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  // Initialize Gemini
+  Gemini.init(apiKey: dotenv.env['GEMINI_API_KEY'] ?? '');
 
   // Initialize Firebase
   try {

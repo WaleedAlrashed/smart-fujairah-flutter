@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/cache_service.dart';
@@ -125,6 +126,18 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Gemini Chat
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.auto_awesome, color: theme.colorScheme.primary),
+              title: Text('gemini_chat'.tr()),
+              subtitle: Text('gemini_chat_subtitle'.tr()),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/gemini-chat'),
             ),
           ),
           const SizedBox(height: 12),

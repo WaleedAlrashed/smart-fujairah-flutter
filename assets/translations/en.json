@@ -92,5 +92,7 @@
   "plot_id_label": "Plot ID",
   "plot_code_label": "Code",
   "area_sqm": "Area",
-  "block": "Block"
+  "block": "Block",
+  "gemini_chat": "Gemini Chat",
+  "gemini_chat_subtitle": "Chat with Google Gemini AI"
 }
