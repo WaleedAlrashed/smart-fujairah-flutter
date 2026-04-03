@@ -49,3 +49,6 @@ app.*.map.json
 
 # Peanut build artifacts
 .last_build_id
+
+# Environment variables
+.env

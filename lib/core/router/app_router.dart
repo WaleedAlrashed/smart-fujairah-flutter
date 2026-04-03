@@ -9,7 +9,7 @@ import '../../screens/service_detail_screen.dart';
 import '../../screens/service_request_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../../screens/search_screen.dart';
-import '../../screens/ai_assistant_screen.dart';
+import '../../screens/cloudflare_ai_screen.dart';
 import '../../screens/my_requests_screen.dart';
 import '../../screens/map_screen.dart';
 import '../../screens/shell_screen.dart';
@@ -86,7 +86,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/assistant',
-                builder: (context, state) => const AiAssistantScreen(),
+                builder: (context, state) => const CloudflareAiScreen(),
               ),
             ],
           ),
