@@ -1,3 +1,8 @@
+// Land Map Screen
+// Displays an interactive OpenStreetMap centered on Fujairah with colored
+// plot polygons. Users can tap plots to see details in a bottom info card.
+// Uses flutter_map (Leaflet-based) + Riverpod for async plot data.
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,6 +11,9 @@ import 'package:latlong2/latlong.dart';
 import '../models/plot.dart';
 import '../providers/plots_provider.dart';
 
+/// Main map screen — uses ConsumerStatefulWidget so it can:
+/// 1. Watch the plotsProvider (Riverpod) for async plot data
+/// 2. Hold mutable state like the selected plot and map controller
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -14,31 +22,40 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
+  // MapController allows programmatic map operations (move, zoom)
   final MapController _mapController = MapController();
+
+  // Currently selected plot — null means no plot is selected
   Plot? _selectedPlot;
 
-  // Fujairah Al Owaid center
+  // Default map center: Fujairah Al Owaid area coordinates
   static const _fujairahCenter = LatLng(25.1295, 56.3440);
 
+  /// Returns a color based on the plot's land use type.
+  /// Used for polygon fill, border, marker background, and legend items.
   Color _plotColor(String plotType) => switch (plotType) {
         'Residential' => Colors.green,
         'Commercial' => Colors.blue,
         'Residential-Commercial' => Colors.orange,
         'Government' => Colors.purple,
         'Industrial' => Colors.red,
-        _ => Colors.amber,
+        _ => Colors.amber, // Fallback for unknown types
       };
 
   @override
   Widget build(BuildContext context) {
+    // Watch the plots provider — returns AsyncValue<List<Plot>>
+    // which can be loading, error, or data
     final plotsAsync = ref.watch(plotsProvider);
     final theme = Theme.of(context);
+    // Get current locale to display localized plot names (Arabic or English)
     final locale = context.locale.languageCode;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('land_map'.tr()),
         actions: [
+          // Reset button — re-centers the map on Fujairah at default zoom
           IconButton(
             icon: const Icon(Icons.my_location),
             onPressed: () => _mapController.move(_fujairahCenter, 16),
@@ -46,8 +63,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
+
+      // AsyncValue.when handles all three states: loading, error, data
       body: plotsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
+
+        // Error state with a retry button that invalidates the provider to re-fetch
         error: (err, _) => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -61,8 +82,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
         ),
+
+        // Data state — Stack layers: map at bottom, legend top-right, info card bottom
         data: (plots) => Stack(
           children: [
+            // ── FlutterMap ──
+            // The main map widget with three layers stacked on top of each other
             FlutterMap(
               mapController: _mapController,
               options: MapOptions(
@@ -70,13 +95,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 initialZoom: 16,
                 minZoom: 12,
                 maxZoom: 19,
+                // Tapping empty area deselects the current plot
                 onTap: (_, __) => setState(() => _selectedPlot = null),
               ),
               children: [
+                // Layer 1: OpenStreetMap tile layer — renders the base map tiles
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'ae.gov.fujmun.smartfujairah',
                 ),
+
+                // Layer 2: Polygon layer — draws colored plot boundaries on the map.
+                // Each plot's polygon points come from the API (GeoJSON coordinates).
+                // Selected plots get higher opacity and thicker borders.
                 PolygonLayer(
                   polygons: plots.map((plot) {
                     final color = _plotColor(plot.plotTypeEn);
@@ -91,14 +122,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     );
                   }).toList(),
                 ),
-                // Invisible tap targets using markers at polygon centers
+
+                // Layer 3: Marker layer — small labeled badges at each polygon's center.
+                // These serve as tap targets since PolygonLayer doesn't support onTap.
+                // Each marker shows the plot code and selects the plot when tapped.
                 MarkerLayer(
                   markers: plots.map((plot) => Marker(
-                    point: plot.center,
+                    point: plot.center, // Computed center of the polygon
                     width: 40,
                     height: 40,
                     child: GestureDetector(
                       onTap: () {
+                        // Select this plot and pan the map to center on it
                         setState(() => _selectedPlot = plot);
                         _mapController.move(plot.center, _mapController.camera.zoom);
                       },
@@ -125,7 +160,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ],
             ),
 
-            // Legend
+            // ── Legend overlay ──
+            // Positioned top-right, shows color key for each land use type
             Positioned(
               top: 8,
               right: 8,
@@ -152,7 +188,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
 
-            // Selected plot bottom sheet
+            // ── Selected plot info card ──
+            // Slides in at the bottom when a plot is tapped
             if (_selectedPlot != null)
               Positioned(
                 bottom: 0,
@@ -172,6 +209,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 }
 
+/// A single row in the legend: colored square + label text.
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
@@ -185,6 +223,7 @@ class _LegendItem extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Small colored square matching the polygon color
           Container(
             width: 12,
             height: 12,
@@ -202,6 +241,9 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
+/// Bottom card that shows details about the selected plot.
+/// Displays: plot type badge, area name, and a row of detail tiles
+/// (plot ID, code, area in m², and block code).
 class _PlotInfoCard extends StatelessWidget {
   final Plot plot;
   final String locale;
@@ -228,9 +270,10 @@ class _PlotInfoCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // Header row: plot type badge (left) + close button (right)
             Row(
               children: [
+                // Plot type chip — colored to match the polygon on the map
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -239,7 +282,7 @@ class _PlotInfoCard extends StatelessWidget {
                     border: Border.all(color: color.withAlpha(80)),
                   ),
                   child: Text(
-                    plot.plotType(locale),
+                    plot.plotType(locale), // Localized plot type name
                     style: TextStyle(
                       color: color,
                       fontSize: 12,
@@ -257,7 +300,7 @@ class _PlotInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // Area name
+            // Area name — localized (Arabic or English) based on current locale
             Text(
               plot.areaName(locale),
               style: theme.textTheme.titleMedium?.copyWith(
@@ -266,7 +309,7 @@ class _PlotInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Details grid
+            // Details row — four equally-spaced info tiles showing plot metadata
             Row(
               children: [
                 Expanded(
@@ -308,6 +351,8 @@ class _PlotInfoCard extends StatelessWidget {
   }
 }
 
+/// A compact vertical tile: icon → label → value.
+/// Used in the plot info card's details row.
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
